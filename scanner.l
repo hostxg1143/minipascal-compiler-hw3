@@ -20,13 +20,10 @@ int fileno(FILE *);
 
 #define MAX_LINE_LENG      256
 #define LIST       strcat(buffer, yytext)
-#define LIST_FLUSH do{ if(opt_list) printf("%s", buffer); *buffer = 0; }while(0)
-#define LOG(TYPE) \
-    do{ LIST; \
-        if(opt_token) \
-        fprintf(stderr, "token(type:%-10s) on line %4d, %3d : %s\n", \
-            #TYPE, line_no, col_no - yyleng + 1, yytext); \
-    } while(0)
+#define LIST_FLUSH do{ if(opt_list) printf("%s", buffer); *buffer = 0; line_no++; col_no = 0;}while(0)
+#define LOG(TYPE) do{ LIST; if(opt_token) fprintf(stderr, "token(type:%-10s) on line %4d, %3d : %s\n", #TYPE, line_no, col_no - yyleng + 1, yytext); } while(0)
+#define INFO(TAG) do{ LIST; if(opt_token) fprintf(stderr, "[INFO ] line %4d:%3d comment string\n", line_no, col_no - yyleng + 1); } while(0)
+#define INFOS(TAG) do{ LIST; if(opt_token) fprintf(stderr, "[INFO ] line %4d:%3d comment string %s\n", line_no, col_no - yyleng + 1, #TAG); } while(0)
 
 #ifdef __cplusplus
 extern "C" int yylex(void);
@@ -40,7 +37,8 @@ char buffer[MAX_LINE_LENG];
 
 %option nounput
 %option noinput
-
+%x COMMENT
+%x COMMENTS
 A [aA]
 B [bB]
 C [cC]
@@ -67,7 +65,8 @@ W [wW]
 X [xX]
 Y [yY]
 Z [zZ]
-
+Int ([0-9]+)
+Float ([0-9]+)\.[0-9]+
 %%
                              /* v could do something */
 {P}{R}{O}{G}{R}{A}{M}       {LOG(KEYWORD); return(PROGRAM);    }
@@ -112,26 +111,38 @@ Z [zZ]
 "!="                        {LOG(KEYWORD); return(NEQOP);      }
 
   /* define identifier here */
+([a-z][a-zA-Z0-9_]*[a-zA-Z0-9])|[a-z] {LOG(IDENTIFIER); yylval.text = strdup(yytext); return(IDENTIFIER);     }
 
   /* define INTEGERNUM, REALNUMBER, SCIENTIFIC here */
+{Int}                        {LOG(NUMBER); yylval.val = atoi(yytext); return(INTEGERNUM);                     }
+{Float}                      {LOG(NUMBER); yylval.dval = atof(yytext); return(REALNUMBER);                    }
+({Int}|{Float}){E}[+-]?{Int} {LOG(NUMBER); yylval.dval = atof(yytext); return(SCIENTIFIC);                    }
 
   /* define single/multiple line comment here */
+\/\/                         {INFO(); BEGIN COMMENT;                                                          }
+\/\*                         {INFOS(start); BEGIN COMMENTS;                                                   }
+
+<COMMENT>.                   {LIST;                                                                           }                 
+<COMMENT>\n                  {LIST; LIST_FLUSH; BEGIN INITIAL;                                                }
+
+<COMMENTS>\*\/               {INFOS(end); BEGIN INITIAL;                                                      }
+<COMMENTS>.                  {LIST;                                                                           }
+<COMMENTS>\n                 {LIST; LIST_FLUSH;                                                               }
 
   /* define string constant (LITERALSTR) here */
+\"[^\n"]*\"                  {LOG(STRING); yylval.text = strdup(yytext); return(LITERALSTR);                  }
 
   /* define pragma here */
-
- /*
-    yylval.text = strdup, strndup ... (yytext)
-    yylval.dval = atoi, atof, strtod, strtol ... (yytext)
- */
+#[ \t\f\r]*{P}{R}{A}{G}{M}{A}[ \t\f\r]*{L}{I}{S}{T}[ \t\f\r]*{O}{F}{F}  {if(opt_list){ opt_list=0; } LIST;    }
+#[ \t\f\r]*{P}{R}{A}{G}{M}{A}[ \t\f\r]*{L}{I}{S}{T}[ \t\f\r]*{O}{N}   {if(!opt_list){ opt_list=1; } LIST;     }
+#[ \t\f\r]*{P}{R}{A}{G}{M}{A}[ \t\f\r]*{T}{O}{K}{E}{N}[ \t\f\r]*off  {if(opt_token){ opt_list=0; } LIST;      }
+#[ \t\f\r]*{P}{R}{A}{G}{M}{A}[ \t\f\r]*{T}{O}{K}{E}{N}[ \t\f\r]*{O}{F}{F}   {if(!opt_token){opt_list=1;} LIST;}
 
 [ \t\f\r]    LIST;
 
 \n {
-  LIST;
+  LIST;  //not string, LIST clear
   LIST_FLUSH;
-  line_no++, col_no = 0;
 }
 
-.  { LIST; fprintf(stderr, "[ERROR] line %4d:%3d lexical analyzer error %s\n", line_no, col_no-(int)yyleng+1, yytext); }
+.  {LIST; fprintf(stderr, "[ERROR] line %4d:%3d lexical analyzer error %s\n", line_no, col_no-(int)yyleng+1, yytext);}
