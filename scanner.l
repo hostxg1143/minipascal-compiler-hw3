@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 %{
 /*
  * scanner.l
@@ -296,4 +296,4 @@ Float ([0-9]+)\.[0-9]+
 }
 
 .  {LIST; fprintf(stderr, "[ERROR] line %4d:%3d lexical analyzer error %s\n", line_no, col_no-(int)yyleng+1, yytext);}
->>>>>>> 61da754cba90e3b30d08025b4be497db1d8ad246
+

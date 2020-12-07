@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # ICD20 Homework3
 
 ## How port your homework2 to homework3
@@ -42,4 +42,4 @@ Notes:
 0. You can use the compare.sh to diff you output, use `bash compare.sh [testcase number]` or `bash compare.sh all`(wrong case only) to open `vimdiff` window, and you can type `ESC` and type `:qa!` to exit. If you want to stop the comparison, use `ctrl + z` to stop the process, and `kill %1` to kill it.
 1. Assignments of function are only allowed in its compound statement, other function assignments would be treated as type error.
 
->>>>>>> 61da754cba90e3b30d08025b4be497db1d8ad246
+

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 SCANNER = scanner
 PARSER  = parser
 CC      = gcc #gcc
@@ -126,4 +126,4 @@ DOCKER_IMG = ${DOCKERHUB_ACCOUNT}/${IMAGE_NAME}:latest
 
 pull:
 	docker pull ${DOCKER_IMG}
->>>>>>> 61da754cba90e3b30d08025b4be497db1d8ad246
+

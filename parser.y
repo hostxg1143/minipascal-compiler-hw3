@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -1403,8 +1403,7 @@ int main(int argc, const char *argv[]) {
     yyin = fp;
     yyparse();
     if(root){
-        // do pass here
+        
     }
     return 0;
->>>>>>> 61da754cba90e3b30d08025b4be497db1d8ad246
 }

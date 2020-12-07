@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 #!/bin/bash
 
 RED='\033[0;31m'
@@ -130,4 +130,4 @@ do
        fi
     fi
 done
->>>>>>> 61da754cba90e3b30d08025b4be497db1d8ad246
+

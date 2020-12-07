@@ -1,4 +1,5 @@
 #include "semantic_analyzer.hpp"
+#include "info.hpp"
 #include "AST/loc.h"
 #include "AST/ast.h"
 #include "AST/error.h"
@@ -22,6 +23,7 @@
 using namespace std;
 
 void SemanticAnalyzer::visit(ProgNode *current_node){
+	SHOW_NEWSCP();
 
 }
 void SemanticAnalyzer::visit(SubprogramDeclarationNode *current_node){
